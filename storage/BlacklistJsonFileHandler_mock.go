@@ -5,11 +5,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type CustomerJsonFileHandlerMock[T entity.Customer] struct {
+type BlacklistJsonFileHandlerMock[T entity.Blacklist] struct {
 	Mock mock.Mock
 }
 
-func (j *CustomerJsonFileHandlerMock[T]) ReadFile(path string) ([]T, error) {
+func (j *BlacklistJsonFileHandlerMock[T]) ReadFile(path string) ([]T, error) {
 	arguments := j.Mock.Called(path)
 
 	if args := arguments.Get(0); args != nil {
@@ -18,7 +18,7 @@ func (j *CustomerJsonFileHandlerMock[T]) ReadFile(path string) ([]T, error) {
 	return nil, arguments.Error(1)
 }
 
-func (j *CustomerJsonFileHandlerMock[T]) WriteFile(data []T, path string) (string, error) {
+func (j *BlacklistJsonFileHandlerMock[T]) WriteFile(data []T, path string) (string, error) {
 	arguments := j.Mock.Called(data, path)
 
 	return arguments.String(0), arguments.Error(1)

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"PaymentAPI/constants"
-	dto "PaymentAPI/dto/response"
 	"PaymentAPI/entity"
 	"PaymentAPI/storage"
 	"errors"
@@ -11,8 +10,9 @@ import (
 )
 
 type RefreshTokenRepository interface {
-	CreateRefreshToken(customer dto.CustomerResponse) (string, error)
+	CreateRefreshToken(customerId string) (string, error)
 	GetRefreshToken(refreshToken string) (entity.RefreshToken, error)
+	GetAllRefreshToken() ([]entity.RefreshToken, error)
 	DeleteRefreshToken(refreshToken string) error
 }
 
@@ -24,11 +24,11 @@ func NewRefreshTokenRepository(jsonStorage storage.JsonFileHandler[entity.Refres
 	return &refreshTokenRepository{JsonStorage: jsonStorage}
 }
 
-func (r *refreshTokenRepository) CreateRefreshToken(customer dto.CustomerResponse) (string, error) {
+func (r *refreshTokenRepository) CreateRefreshToken(customerId string) (string, error) {
 	refreshToken := entity.RefreshToken{
 		RefreshToken: uuid.New().String(),
-		CustomerId:   customer.Id,
-		ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).String(),
+		CustomerId:   customerId,
+		ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
 	}
 
 	data, err := r.JsonStorage.ReadFile(constants.RefreshTokenJsonPath)
@@ -59,6 +59,15 @@ func (r *refreshTokenRepository) GetRefreshToken(refreshToken string) (entity.Re
 	}
 
 	return entity.RefreshToken{}, errors.New(constants.RefreshTokenNotFoundError)
+}
+
+func (r *refreshTokenRepository) GetAllRefreshToken() ([]entity.RefreshToken, error) {
+	data, err := r.JsonStorage.ReadFile(constants.RefreshTokenJsonPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func (r *refreshTokenRepository) DeleteRefreshToken(refreshToken string) error {

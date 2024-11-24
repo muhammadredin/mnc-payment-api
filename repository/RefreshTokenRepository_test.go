@@ -45,7 +45,7 @@ func TestCreateNewRefreshToken(t *testing.T) {
 		constants.RefreshTokenJsonPath,
 	).Return(constants.JsonWriteSuccess, nil)
 
-	token, err := refreshTokenRepository.CreateRefreshToken(customer)
+	token, err := refreshTokenRepository.CreateRefreshToken(customer.Id)
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, token)
