@@ -8,6 +8,7 @@ import (
 type AuthService interface {
 	Login(username string) (dto.AuthResponse, error)
 	Logout(accessToken string) error
+	GetNewAccessToken(refreshToken string) (dto.AuthResponse, error)
 }
 
 type authService struct {
@@ -51,13 +52,24 @@ func (a *authService) Logout(accessToken string) error {
 	return nil
 }
 
-//func (a *authService) GetNewAccessToken(refreshToken string) (dto.AuthResponse, error) {
-//	token, err := a.refreshTokenService.RotateRefreshToken(refreshToken)
-//	if err != nil {
-//		return dto.AuthResponse{}, err
-//	}
-//
-//	a.customerService.GetCustomerByUsername(token.CustomerId)
-//
-//	accessToken, err := utils.GenerateAccessToken()
-//}
+func (a *authService) GetNewAccessToken(refreshToken string) (dto.AuthResponse, error) {
+	newRefreshToken, err := a.refreshTokenService.RotateRefreshToken(refreshToken)
+	if err != nil {
+		return dto.AuthResponse{}, err
+	}
+
+	customer, err := a.customerService.GetCustomerById(newRefreshToken.CustomerId)
+	if err != nil {
+		return dto.AuthResponse{}, err
+	}
+
+	accessToken, err := utils.GenerateAccessToken(customer)
+	if err != nil {
+		return dto.AuthResponse{}, err
+	}
+
+	return dto.AuthResponse{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken.RefreshToken,
+	}, nil
+}

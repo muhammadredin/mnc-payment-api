@@ -36,9 +36,9 @@ func TestLogin(t *testing.T) {
 	login, err := authService.Login(username)
 	assert.Nil(t, err)
 
-	claims, err := utils.ParseAndVerifyAccessToken(login.AccessToken)
+	id, err := utils.GetCustomerIdFromClaims(login.AccessToken)
 	assert.Nil(t, err)
-	assert.Equal(t, customer.Id, claims["sub"])
+	assert.Equal(t, customer.Id, id)
 	assert.NotNil(t, login.RefreshToken)
 }
 
@@ -55,4 +55,38 @@ func TestLogout(t *testing.T) {
 
 	err := authService.Logout(accessToken)
 	assert.Nil(t, err)
+}
+
+func TestGetNewAccessToken(t *testing.T) {
+	mockCustomerService := new(CustomerServiceMock)
+	mockRefreshTokenService := new(RefreshTokenServiceMock)
+	mockBlacklistService := new(BlacklistServiceMock)
+	authService := NewAuthService(mockCustomerService, mockRefreshTokenService, mockBlacklistService)
+
+	refreshToken := "refresh-token-1"
+
+	newRefreshToken := entity.RefreshToken{
+		RefreshToken: "new-refresh-token-1",
+		CustomerId:   "customer-id-1",
+		ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
+	}
+
+	customer := dto.CustomerResponse{
+		Id:       "customer-id-1",
+		Username: "john doe",
+	}
+
+	mockRefreshTokenService.Mock.On("RotateRefreshToken", refreshToken).
+		Return(newRefreshToken, nil)
+
+	mockCustomerService.Mock.On("GetCustomerById", newRefreshToken.CustomerId).
+		Return(customer, nil)
+
+	token, err := authService.GetNewAccessToken(refreshToken)
+	assert.Nil(t, err)
+	assert.Equal(t, newRefreshToken.RefreshToken, token.RefreshToken)
+
+	id, err := utils.GetCustomerIdFromClaims(token.AccessToken)
+	assert.Nil(t, err)
+	assert.Equal(t, customer.Id, id)
 }

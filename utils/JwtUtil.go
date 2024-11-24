@@ -92,3 +92,16 @@ func GetExpirationFromClaimsAsString(accessToken string) (string, error) {
 
 	return expStr, nil
 }
+
+func GetCustomerIdFromClaims(accessToken string) (string, error) {
+	claims, err := ParseAndVerifyAccessToken(accessToken)
+	if err != nil {
+		return "", err
+	}
+
+	id, ok := claims["sub"]
+	if !ok {
+		return "", errors.New("Customer Id (sub) not found in token")
+	}
+	return id.(string), nil
+}
