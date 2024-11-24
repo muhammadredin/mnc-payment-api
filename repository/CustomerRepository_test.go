@@ -64,6 +64,36 @@ func TestCreateCustomer(t *testing.T) {
 	})
 }
 
+func TestGetCustomerByUsername(t *testing.T) {
+	mockFileHandler := new(storage.CustomerJsonFileHandlerMock[entity.Customer])
+	customerRepository := NewCustomerRepository(mockFileHandler)
+	customer := entity.Customer{
+		Id:       "customer-1",
+		Username: "customer-1",
+		Password: "customer-1",
+	}
+
+	customerResponse := res.CustomerResponse{
+		Id:       "customer-1",
+		Username: "customer-1",
+	}
+
+	mockFileHandler.Mock.On("ReadFile", mock.Anything).Return([]entity.Customer{customer}, nil) // Mock ReadFile to return customer when called
+	mockFileHandler.Mock.On("ReadFile", "").Return([]entity.Customer{}, nil)
+
+	t.Run("ShouldReturnCustomer", func(t *testing.T) {
+		response, err := customerRepository.GetByUsername(customer.Username)
+		assert.Equal(t, response, customerResponse, "Response not equal to customer")
+		assert.Nil(t, err, "Error should be nil")
+	})
+
+	t.Run("ShouldReturnError", func(t *testing.T) {
+		response, err := customerRepository.GetByUsername("")
+		assert.Equal(t, response, res.CustomerResponse{}, "Response should be empty struct")
+		assert.Equal(t, constants.CustomerNotFound, err.Error(), "Error message not correct")
+	})
+}
+
 func TestGetCustomerById(t *testing.T) {
 	mockFileHandler := new(storage.CustomerJsonFileHandlerMock[entity.Customer])
 	customerRepository := NewCustomerRepository(mockFileHandler)
@@ -82,13 +112,13 @@ func TestGetCustomerById(t *testing.T) {
 	mockFileHandler.Mock.On("ReadFile", "").Return([]entity.Customer{}, nil)
 
 	t.Run("ShouldReturnCustomer", func(t *testing.T) {
-		response, err := customerRepository.GetByUsername(customer.Id)
+		response, err := customerRepository.GetById(customer.Id)
 		assert.Equal(t, response, customerResponse, "Response not equal to customer")
 		assert.Nil(t, err, "Error should be nil")
 	})
 
 	t.Run("ShouldReturnError", func(t *testing.T) {
-		response, err := customerRepository.GetByUsername("")
+		response, err := customerRepository.GetById("")
 		assert.Equal(t, response, res.CustomerResponse{}, "Response should be empty struct")
 		assert.Equal(t, constants.CustomerNotFound, err.Error(), "Error message not correct")
 	})

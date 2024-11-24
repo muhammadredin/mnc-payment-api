@@ -38,7 +38,7 @@ func (a *authService) Login(username string) (dto.AuthResponse, error) {
 
 	return dto.AuthResponse{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		RefreshToken: refreshToken.RefreshToken,
 	}, nil
 }
 
@@ -50,3 +50,14 @@ func (a *authService) Logout(accessToken string) error {
 
 	return nil
 }
+
+//func (a *authService) GetNewAccessToken(refreshToken string) (dto.AuthResponse, error) {
+//	token, err := a.refreshTokenService.RotateRefreshToken(refreshToken)
+//	if err != nil {
+//		return dto.AuthResponse{}, err
+//	}
+//
+//	a.customerService.GetCustomerByUsername(token.CustomerId)
+//
+//	accessToken, err := utils.GenerateAccessToken()
+//}

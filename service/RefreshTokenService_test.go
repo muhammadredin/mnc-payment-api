@@ -29,7 +29,7 @@ func TestGenerateRefreshToken(t *testing.T) {
 		name           string
 		customerId     string
 		existingTokens []entity.RefreshToken
-		newToken       string
+		newToken       entity.RefreshToken
 		expectedError  error
 	}{
 		{
@@ -42,15 +42,23 @@ func TestGenerateRefreshToken(t *testing.T) {
 					ExpiresAt:    time.Now().Add(time.Hour).Format(time.RFC3339),
 				},
 			},
-			newToken:      "new-refresh-token",
+			newToken: entity.RefreshToken{
+				RefreshToken: "new-refresh-token",
+				CustomerId:   "user-1",
+				ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
+			},
 			expectedError: nil,
 		},
 		{
 			name:           "Should Generate New Token When User Has No Existing Token",
 			customerId:     "user-2",
 			existingTokens: []entity.RefreshToken{},
-			newToken:       "new-refresh-token",
-			expectedError:  nil,
+			newToken: entity.RefreshToken{
+				RefreshToken: "new-refresh-token",
+				CustomerId:   "user-2",
+				ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
+			},
+			expectedError: nil,
 		},
 	}
 
@@ -93,7 +101,7 @@ func TestRotateRefreshToken(t *testing.T) {
 		name          string
 		refreshToken  string
 		storedToken   entity.RefreshToken
-		newToken      string
+		newToken      entity.RefreshToken
 		expectedError error
 	}{
 		{
@@ -104,7 +112,11 @@ func TestRotateRefreshToken(t *testing.T) {
 				CustomerId:   "user-1",
 				ExpiresAt:    time.Now().Add(24 * time.Hour).Format(time.RFC3339),
 			},
-			newToken:      "new-refresh-token",
+			newToken: entity.RefreshToken{
+				RefreshToken: "new-refresh-token",
+				CustomerId:   "user-1",
+				ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
+			},
 			expectedError: nil,
 		},
 		{
@@ -115,14 +127,14 @@ func TestRotateRefreshToken(t *testing.T) {
 				CustomerId:   "user-1",
 				ExpiresAt:    time.Now().Add(-24 * time.Hour).Format(time.RFC3339),
 			},
-			newToken:      "",
+			newToken:      entity.RefreshToken{},
 			expectedError: errors.New(constants.RefreshTokenExpiredError),
 		},
 		{
 			name:          "Should Fail For Non-existent Token",
 			refreshToken:  "non-existent-token",
 			storedToken:   entity.RefreshToken{},
-			newToken:      "",
+			newToken:      entity.RefreshToken{},
 			expectedError: errors.New(constants.RefreshTokenNotFoundError),
 		},
 	}

@@ -19,3 +19,8 @@ func (c *CustomerRepositoryMock) GetByUsername(username string) (res.CustomerRes
 	args := c.Mock.Called(username)
 	return args.Get(0).(res.CustomerResponse), args.Error(1)
 }
+
+func (c *CustomerRepositoryMock) GetById(id string) (res.CustomerResponse, error) {
+	args := c.Mock.Called(id)
+	return args.Get(0).(res.CustomerResponse), args.Error(1)
+}

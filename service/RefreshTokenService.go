@@ -2,6 +2,7 @@ package service
 
 import (
 	"PaymentAPI/constants"
+	"PaymentAPI/entity"
 	"PaymentAPI/repository"
 	"errors"
 	"fmt"
@@ -9,8 +10,8 @@ import (
 )
 
 type RefreshTokenService interface {
-	GenerateRefreshToken(customerId string) (string, error)
-	RotateRefreshToken(refreshToken string) (string, error)
+	GenerateRefreshToken(customerId string) (entity.RefreshToken, error)
+	RotateRefreshToken(refreshToken string) (entity.RefreshToken, error)
 }
 
 type refreshTokenService struct {
@@ -21,10 +22,10 @@ func NewRefreshTokenService(refreshTokenRepository repository.RefreshTokenReposi
 	return &refreshTokenService{refreshTokenRepository: refreshTokenRepository}
 }
 
-func (r *refreshTokenService) GenerateRefreshToken(customerId string) (string, error) {
+func (r *refreshTokenService) GenerateRefreshToken(customerId string) (entity.RefreshToken, error) {
 	refreshToken, err := r.refreshTokenRepository.GetAllRefreshToken()
 	if err != nil {
-		return "", err
+		return entity.RefreshToken{}, err
 	}
 
 	for _, token := range refreshToken {
@@ -36,16 +37,16 @@ func (r *refreshTokenService) GenerateRefreshToken(customerId string) (string, e
 
 	token, err := r.refreshTokenRepository.CreateRefreshToken(customerId)
 	if err != nil {
-		return "", err
+		return entity.RefreshToken{}, err
 	}
 
 	return token, nil
 }
 
-func (r *refreshTokenService) RotateRefreshToken(refreshToken string) (string, error) {
+func (r *refreshTokenService) RotateRefreshToken(refreshToken string) (entity.RefreshToken, error) {
 	token, err := r.refreshTokenRepository.GetRefreshToken(refreshToken)
 	if err != nil {
-		return "", err
+		return entity.RefreshToken{}, err
 	}
 
 	parsedTime, err := time.Parse(time.RFC3339, token.ExpiresAt)
@@ -53,12 +54,12 @@ func (r *refreshTokenService) RotateRefreshToken(refreshToken string) (string, e
 
 	r.refreshTokenRepository.DeleteRefreshToken(token.RefreshToken)
 	if time.Now().After(parsedTime) {
-		return "", errors.New(constants.RefreshTokenExpiredError)
+		return entity.RefreshToken{}, errors.New(constants.RefreshTokenExpiredError)
 	}
 
 	newRefreshToken, err := r.GenerateRefreshToken(token.CustomerId)
 	if err != nil {
-		return "", err
+		return entity.RefreshToken{}, err
 	}
 
 	return newRefreshToken, nil

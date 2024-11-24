@@ -49,7 +49,7 @@ func TestCreateNewRefreshToken(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, token)
-	_, err = uuid.Parse(token)
+	_, err = uuid.Parse(token.RefreshToken)
 	assert.Nil(t, err)
 }
 

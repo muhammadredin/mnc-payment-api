@@ -7,6 +7,7 @@ import (
 
 type CustomerService interface {
 	GetCustomerByUsername(username string) (dto.CustomerResponse, error)
+	GetCustomerById(id string) (dto.CustomerResponse, error)
 }
 
 type CustomerServiceImpl struct {
@@ -25,3 +26,14 @@ func (c *CustomerServiceImpl) GetCustomerByUsername(username string) (dto.Custom
 
 	return customer, nil
 }
+
+func (c *CustomerServiceImpl) GetCustomerById(id string) (dto.CustomerResponse, error) {
+	customer, err := c.customerRepository.GetById(id)
+	if err != nil {
+		return dto.CustomerResponse{}, err
+	}
+
+	return customer, nil
+}
+
+//func (c *CustomerServiceImpl) CreateNewCustomer() ([]dto.CustomerResponse, error) {}

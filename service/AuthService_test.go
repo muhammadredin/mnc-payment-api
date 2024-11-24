@@ -2,9 +2,11 @@ package service
 
 import (
 	dto "PaymentAPI/dto/response"
+	"PaymentAPI/entity"
 	"PaymentAPI/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestLogin(t *testing.T) {
@@ -20,7 +22,11 @@ func TestLogin(t *testing.T) {
 		Username: username,
 	}
 
-	refreshToken := "refresh-token-1"
+	refreshToken := entity.RefreshToken{
+		RefreshToken: "refresh-token-1",
+		CustomerId:   customer.Id,
+		ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour).Format(time.RFC3339),
+	}
 
 	mockCustomerService.Mock.On("GetCustomerByUsername", username).
 		Return(customer, nil)

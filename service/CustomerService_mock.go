@@ -13,3 +13,8 @@ func (c *CustomerServiceMock) GetCustomerByUsername(username string) (dto.Custom
 	args := c.Mock.Called(username)
 	return args.Get(0).(dto.CustomerResponse), args.Error(1)
 }
+
+func (c *CustomerServiceMock) GetCustomerById(id string) (dto.CustomerResponse, error) {
+	args := c.Mock.Called(id)
+	return args.Get(0).(dto.CustomerResponse), args.Error(1)
+}

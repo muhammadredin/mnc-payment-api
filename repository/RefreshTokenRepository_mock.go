@@ -2,6 +2,7 @@ package repository
 
 import (
 	"PaymentAPI/entity"
+	"fmt"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -9,9 +10,13 @@ type RefreshTokenRepositoryMock struct {
 	Mock mock.Mock
 }
 
-func (r *RefreshTokenRepositoryMock) CreateRefreshToken(customerId string) (string, error) {
+func (r *RefreshTokenRepositoryMock) CreateRefreshToken(customerId string) (entity.RefreshToken, error) {
 	args := r.Mock.Called(customerId)
-	return args.String(0), args.Error(1)
+	refreshToken, ok := args.Get(0).(entity.RefreshToken)
+	if !ok {
+		return entity.RefreshToken{}, fmt.Errorf("invalid type for refresh token")
+	}
+	return refreshToken, args.Error(1)
 }
 
 func (r *RefreshTokenRepositoryMock) GetRefreshToken(refreshToken string) (entity.RefreshToken, error) {

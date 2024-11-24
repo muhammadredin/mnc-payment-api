@@ -10,7 +10,7 @@ import (
 )
 
 type RefreshTokenRepository interface {
-	CreateRefreshToken(customerId string) (string, error)
+	CreateRefreshToken(customerId string) (entity.RefreshToken, error)
 	GetRefreshToken(refreshToken string) (entity.RefreshToken, error)
 	GetAllRefreshToken() ([]entity.RefreshToken, error)
 	DeleteRefreshToken(refreshToken string) error
@@ -24,7 +24,7 @@ func NewRefreshTokenRepository(jsonStorage storage.JsonFileHandler[entity.Refres
 	return &refreshTokenRepository{JsonStorage: jsonStorage}
 }
 
-func (r *refreshTokenRepository) CreateRefreshToken(customerId string) (string, error) {
+func (r *refreshTokenRepository) CreateRefreshToken(customerId string) (entity.RefreshToken, error) {
 	refreshToken := entity.RefreshToken{
 		RefreshToken: uuid.New().String(),
 		CustomerId:   customerId,
@@ -33,17 +33,17 @@ func (r *refreshTokenRepository) CreateRefreshToken(customerId string) (string, 
 
 	data, err := r.JsonStorage.ReadFile(constants.RefreshTokenJsonPath)
 	if err != nil {
-		return "", err
+		return entity.RefreshToken{}, err
 	}
 
 	data = append(data, refreshToken)
 
 	_, err = r.JsonStorage.WriteFile(data, constants.RefreshTokenJsonPath)
 	if err != nil {
-		return "", err
+		return entity.RefreshToken{}, err
 	}
 
-	return refreshToken.RefreshToken, nil
+	return refreshToken, nil
 }
 
 func (r *refreshTokenRepository) GetRefreshToken(refreshToken string) (entity.RefreshToken, error) {

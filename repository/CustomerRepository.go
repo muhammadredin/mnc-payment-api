@@ -14,6 +14,7 @@ import (
 
 type CustomerRepository interface {
 	GetByUsername(id string) (res.CustomerResponse, error)
+	GetById(id string) (res.CustomerResponse, error)
 	Create(customer req.CreateCustomerRequest) (string, error)
 }
 
@@ -65,6 +66,21 @@ func (cr *customerRepository) GetByUsername(username string) (res.CustomerRespon
 
 	for _, c := range data {
 		if c.Username == username {
+			return mapCustomerToCustomerResponse(c), nil
+		}
+	}
+
+	return res.CustomerResponse{}, errors.New(constants.CustomerNotFound)
+}
+
+func (cr *customerRepository) GetById(id string) (res.CustomerResponse, error) {
+	data, err := cr.JsonStorage.ReadFile(constants.CustomerJsonPath)
+	if err != nil {
+		return res.CustomerResponse{}, err
+	}
+
+	for _, c := range data {
+		if c.Id == id {
 			return mapCustomerToCustomerResponse(c), nil
 		}
 	}
