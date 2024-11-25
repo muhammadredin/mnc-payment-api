@@ -31,10 +31,10 @@ func InitConfig() {
 	ServerPort = getEnv("SERVER_PORT", "8081")
 
 	// Read Login Expiration Duration (default: 5 minutes)
-	expirationStr := getEnv("LOGIN_EXPIRATION_DURATION", "5")
+	expirationStr := getEnv("ACCESS_TOKEN_EXPIRATION_DURATION", "5")
 	expiration, err := strconv.Atoi(expirationStr)
 	if err != nil {
-		log.Fatalf("Failed to parse LOGIN_EXPIRATION_DURATION: %v", err)
+		log.Fatalf("Failed to parse ACCESS_TOKEN_EXPIRATION_DURATION: %v", err)
 	}
 	LoginExpirationDuration = time.Duration(expiration) * time.Minute
 
