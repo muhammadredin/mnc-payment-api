@@ -1,39 +1,55 @@
 package service
 
 import (
-	dto "PaymentAPI/dto/response"
+	"PaymentAPI/constants"
+	req "PaymentAPI/dto/request"
+	res "PaymentAPI/dto/response"
 	"PaymentAPI/repository"
 )
 
 type CustomerService interface {
-	GetCustomerByUsername(username string) (dto.CustomerResponse, error)
-	GetCustomerById(id string) (dto.CustomerResponse, error)
+	GetCustomerByUsername(username string) (res.CustomerResponse, error)
+	GetCustomerById(id string) (res.CustomerResponse, error)
+	CreateNewCustomer(request req.CreateCustomerRequest) (string, error)
 }
 
 type CustomerServiceImpl struct {
 	customerRepository repository.CustomerRepository
+	walletService      WalletService
 }
 
-func NewCustomerService(customerRepository repository.CustomerRepository) CustomerService {
-	return &CustomerServiceImpl{customerRepository: customerRepository}
+func NewCustomerService(customerRepository repository.CustomerRepository, walletService WalletService) CustomerService {
+	return &CustomerServiceImpl{customerRepository: customerRepository, walletService: walletService}
 }
 
-func (c *CustomerServiceImpl) GetCustomerByUsername(username string) (dto.CustomerResponse, error) {
+func (c *CustomerServiceImpl) GetCustomerByUsername(username string) (res.CustomerResponse, error) {
 	customer, err := c.customerRepository.GetByUsername(username)
 	if err != nil {
-		return dto.CustomerResponse{}, err
+		return res.CustomerResponse{}, err
 	}
 
 	return customer, nil
 }
 
-func (c *CustomerServiceImpl) GetCustomerById(id string) (dto.CustomerResponse, error) {
+func (c *CustomerServiceImpl) GetCustomerById(id string) (res.CustomerResponse, error) {
 	customer, err := c.customerRepository.GetById(id)
 	if err != nil {
-		return dto.CustomerResponse{}, err
+		return res.CustomerResponse{}, err
 	}
 
 	return customer, nil
 }
 
-//func (c *CustomerServiceImpl) CreateNewCustomer() ([]dto.CustomerResponse, error) {}
+func (c *CustomerServiceImpl) CreateNewCustomer(request req.CreateCustomerRequest) (string, error) {
+	customer, err := c.customerRepository.Create(request)
+	if err != nil {
+		return "", err
+	}
+
+	err = c.walletService.CreateWallet(customer.Id)
+	if err != nil {
+		return "", err
+	}
+
+	return constants.CustomerCreateSuccess, nil
+}

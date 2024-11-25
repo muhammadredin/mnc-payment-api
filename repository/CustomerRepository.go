@@ -15,7 +15,7 @@ import (
 type CustomerRepository interface {
 	GetByUsername(id string) (res.CustomerResponse, error)
 	GetById(id string) (res.CustomerResponse, error)
-	Create(customer req.CreateCustomerRequest) (string, error)
+	Create(request req.CreateCustomerRequest) (res.CustomerResponse, error)
 }
 
 type customerRepository struct {
@@ -28,21 +28,21 @@ func NewCustomerRepository(jsonStorage storage.JsonFileHandler[entity.Customer])
 	}
 }
 
-func (cr *customerRepository) Create(request req.CreateCustomerRequest) (string, error) {
+func (cr *customerRepository) Create(request req.CreateCustomerRequest) (res.CustomerResponse, error) {
 	// Create customer entity by calling mapper function
 	customer := MapCreateCustomerToCustomer(request)
 
 	// Get the previous json file
 	data, err := cr.JsonStorage.ReadFile(constants.CustomerJsonPath)
 	if err != nil {
-		return constants.CustomerCreateError, err
+		return res.CustomerResponse{}, err
 	}
 	fmt.Println(data)
 
 	// Check if there's duplicate username
 	for _, item := range data {
 		if customer.Username == item.Username {
-			return "", errors.New(constants.UsernameDuplicateError)
+			return res.CustomerResponse{}, errors.New(constants.UsernameDuplicateError)
 		}
 	}
 
@@ -52,10 +52,10 @@ func (cr *customerRepository) Create(request req.CreateCustomerRequest) (string,
 	// Save the json file
 	_, err = cr.JsonStorage.WriteFile(data, constants.CustomerJsonPath)
 	if err != nil {
-		return constants.CustomerCreateError, err
+		return res.CustomerResponse{}, err
 	}
 
-	return constants.CustomerCreateSuccess, nil
+	return mapCustomerToCustomerResponse(customer), nil
 }
 
 func (cr *customerRepository) GetByUsername(username string) (res.CustomerResponse, error) {

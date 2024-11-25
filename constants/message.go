@@ -20,3 +20,6 @@ const JsonCreateError = "An error occurred while creating JSON file"
 const JsonWriteError = "An error occurred while writing JSON file"
 
 const JwtTokenInvalidError = "Invalid JWT token"
+
+const WalletNotFoundError = "Wallet not found"
+const WalletDuplicateError = "Wallet already exists"

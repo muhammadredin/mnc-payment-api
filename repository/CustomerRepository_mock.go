@@ -10,9 +10,9 @@ type CustomerRepositoryMock struct {
 	Mock mock.Mock
 }
 
-func (c *CustomerRepositoryMock) Create(request req.CreateCustomerRequest) (string, error) {
+func (c *CustomerRepositoryMock) Create(request req.CreateCustomerRequest) (res.CustomerResponse, error) {
 	args := c.Mock.Called(request)
-	return args.String(0), args.Error(1)
+	return args.Get(0).(res.CustomerResponse), args.Error(1)
 }
 
 func (c *CustomerRepositoryMock) GetByUsername(username string) (res.CustomerResponse, error) {

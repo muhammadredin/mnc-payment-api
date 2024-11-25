@@ -36,7 +36,7 @@ func TestCreateCustomer(t *testing.T) {
 
 		response, err := customerRepository.Create(customer)
 
-		assert.Equal(t, constants.CustomerCreateSuccess, response)
+		assert.Equal(t, customer.Username, response.Username)
 		assert.Nil(t, err)
 		mockFileHandler.Mock.AssertExpectations(t)
 	})
@@ -59,7 +59,7 @@ func TestCreateCustomer(t *testing.T) {
 		response, err := customerRepository.Create(customer)
 
 		assert.NotNil(t, err)
-		assert.Equal(t, "", response)
+		assert.Equal(t, res.CustomerResponse{}, response)
 		mockFileHandler.Mock.AssertExpectations(t)
 	})
 }
