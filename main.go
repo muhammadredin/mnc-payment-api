@@ -18,14 +18,17 @@ func main() {
 	walletRepository := repository.NewWalletRepository(storage.NewJsonFileHandler[entity.Wallet]())
 	refreshTokenRepository := repository.NewRefreshTokenRepository(storage.NewJsonFileHandler[entity.RefreshToken]())
 	blacklistRepository := repository.NewBlacklistRepository(storage.NewJsonFileHandler[entity.Blacklist]())
+	transactionRepository := repository.NewTransactionRepository(storage.NewJsonFileHandler[entity.Transaction]())
 
 	walletService := service.NewWalletService(walletRepository)
 	refreshTokenService := service.NewRefreshTokenService(refreshTokenRepository)
 	blacklistService := service.NewBlacklistService(blacklistRepository)
 	customerService := service.NewCustomerService(customerRepository, walletService)
 	authService := service.NewAuthService(customerService, refreshTokenService, blacklistService)
+	transactionService := service.NewTransactionService(transactionRepository, walletService)
 
 	authHandler := handler.NewAuthHandler(authService, customerService)
+	transactionHandler := handler.NewTransactionHandler(transactionService, walletService)
 
 	r := gin.Default()
 
@@ -37,7 +40,12 @@ func main() {
 		public.POST("/auth/refresh-token", authHandler.HandleRefreshToken)
 	}
 
-	r.Use(middleware.AuthMiddleware())
+	r.Use(middleware.AuthMiddleware(blacklistService))
+
+	transaction := r.Group("/api/transaction")
+	{
+		transaction.POST("", transactionHandler.HandleCreateTransaction)
+	}
 
 	r.Run(":8081")
 }

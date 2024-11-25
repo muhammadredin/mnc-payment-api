@@ -52,7 +52,7 @@ func TestGetWallet(t *testing.T) {
 		mockWalletRepository.Mock.On("GetByCustomerId", customerId).
 			Return(walletResponse, nil)
 
-		wallet, err := walletService.GetWallet(customerId)
+		wallet, err := walletService.GetWalletByCustomerId(customerId)
 		assert.Nil(t, err)
 		assert.Equal(t, customerId, wallet.CustomerId)
 	})
@@ -66,7 +66,7 @@ func TestGetWallet(t *testing.T) {
 		mockWalletRepository.Mock.On("GetByCustomerId", customerId).
 			Return(entity.Wallet{}, errors.New(constants.WalletNotFoundError))
 
-		wallet, err := walletService.GetWallet(customerId)
+		wallet, err := walletService.GetWalletByCustomerId(customerId)
 		assert.Equal(t, constants.WalletNotFoundError, err.Error())
 		assert.Equal(t, entity.Wallet{}, wallet)
 	})
@@ -77,13 +77,13 @@ func TestUpdateWallet(t *testing.T) {
 		mockWalletRepository := new(repository.WalletRepositoryMock)
 		walletService := NewWalletService(mockWalletRepository)
 
-		customerId := "customer-1"
+		walletId := "wallet-1"
 		var balance float64 = 5000
 
-		mockWalletRepository.Mock.On("Update", customerId, balance).
+		mockWalletRepository.Mock.On("Update", walletId, balance).
 			Return(nil)
 
-		err := walletService.UpdateWallet(customerId, balance)
+		err := walletService.UpdateWallet(walletId, balance)
 		assert.Nil(t, err)
 	})
 
@@ -91,13 +91,13 @@ func TestUpdateWallet(t *testing.T) {
 		mockWalletRepository := new(repository.WalletRepositoryMock)
 		walletService := NewWalletService(mockWalletRepository)
 
-		customerId := "customer-1"
+		walletId := "wallet-1"
 		var balance float64 = 5000
 
-		mockWalletRepository.Mock.On("Update", customerId, balance).
+		mockWalletRepository.Mock.On("Update", walletId, balance).
 			Return(errors.New(constants.WalletNotFoundError))
 
-		err := walletService.UpdateWallet(customerId, balance)
+		err := walletService.UpdateWallet(walletId, balance)
 		assert.Equal(t, constants.WalletNotFoundError, err.Error())
 	})
 }

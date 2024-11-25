@@ -3,7 +3,6 @@ package utils
 import (
 	"PaymentAPI/constants"
 	"PaymentAPI/entity"
-	"PaymentAPI/enums"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -28,8 +27,6 @@ func GenerateAccessToken(customer entity.Customer) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(LoginExpirationDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
-		Username: customer.Username,
-		Role:     enums.ROLE_USER,
 	}
 
 	token := jwt.NewWithClaims(JwtSigningMethod, claims)

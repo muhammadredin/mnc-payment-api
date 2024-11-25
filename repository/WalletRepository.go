@@ -11,8 +11,9 @@ import (
 type WalletRepository interface {
 	GetAll() ([]entity.Wallet, error)
 	GetByCustomerId(customerId string) (entity.Wallet, error)
+	GetById(id string) (entity.Wallet, error)
 	Create(customerId string) error
-	Update(customerId string, balance float64) error
+	Update(id string, balance float64) error
 }
 
 type walletRepository struct {
@@ -39,6 +40,21 @@ func (w *walletRepository) GetByCustomerId(customerId string) (entity.Wallet, er
 
 	for _, wallet := range data {
 		if wallet.CustomerId == customerId {
+			return wallet, nil
+		}
+	}
+
+	return entity.Wallet{}, errors.New(constants.WalletNotFoundError)
+}
+
+func (w *walletRepository) GetById(id string) (entity.Wallet, error) {
+	data, err := w.GetAll()
+	if err != nil {
+		return entity.Wallet{}, err
+	}
+
+	for _, wallet := range data {
+		if wallet.Id == id {
 			return wallet, nil
 		}
 	}
@@ -73,7 +89,7 @@ func (w *walletRepository) Create(customerId string) error {
 	return nil
 }
 
-func (w *walletRepository) Update(customerId string, balance float64) error {
+func (w *walletRepository) Update(id string, balance float64) error {
 	data, err := w.GetAll()
 	if err != nil {
 		return err
@@ -82,7 +98,7 @@ func (w *walletRepository) Update(customerId string, balance float64) error {
 	customerFound := false
 
 	for i := range data {
-		if data[i].CustomerId == customerId {
+		if data[i].Id == id {
 			data[i].Balance += balance
 			customerFound = true
 			break

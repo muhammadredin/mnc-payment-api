@@ -15,6 +15,8 @@ const LoginUnauthorizedError = "Invalid credentials"
 const AuthorizationHeaderMissingError = "Authorization header is missing"
 const AuthorizationHeaderInvalidError = "Invalid Authorization header token"
 const LogoutSuccess = "Successfully logged out"
+const AccessTokenNotFoundError = "Access token not found"
+const AuthenticatedUserNotFoundError = "Authenticated user not found"
 
 const JsonWriteSuccess = "Successfully wrote JSON file"
 const JsonFileNotFound = "Json file path not found"
@@ -27,5 +29,9 @@ const JwtTokenInvalidError = "Invalid JWT token"
 
 const WalletNotFoundError = "Wallet not found"
 const WalletDuplicateError = "Wallet already exists"
+const WalletForbiddenAccess = "User does not have permission to access this wallet"
 
 const InvalidRequestBodyError = "Invalid request body"
+
+const TransactionInsufficientError = "Insufficient amount of funds"
+const TransactionSuccess = "Successfully created a transaction"

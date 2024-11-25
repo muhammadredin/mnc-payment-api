@@ -24,6 +24,11 @@ func (w *WalletRepositoryMock) GetByCustomerId(customerId string) (entity.Wallet
 	return args.Get(0).(entity.Wallet), args.Error(1)
 }
 
+func (w *WalletRepositoryMock) GetById(id string) (entity.Wallet, error) {
+	args := w.Mock.Called(id)
+	return args.Get(0).(entity.Wallet), args.Error(1)
+}
+
 func (w *WalletRepositoryMock) Create(customerId string) error {
 	args := w.Mock.Called(customerId)
 	return args.Error(0)

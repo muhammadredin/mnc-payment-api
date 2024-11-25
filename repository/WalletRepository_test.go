@@ -113,7 +113,7 @@ func TestUpdateWallet(t *testing.T) {
 		mockJsonFileHandler := new(storage.WalletJsonFileHandlerMock[entity.Wallet])
 		walletRepository := NewWalletRepository(mockJsonFileHandler)
 
-		customerId := "customer-1"
+		walletId := "wallet-1"
 
 		var newBalance float64 = 5000
 
@@ -138,7 +138,7 @@ func TestUpdateWallet(t *testing.T) {
 		}), constants.WalletJsonPath).
 			Return(mock.Anything, nil)
 
-		err := walletRepository.Update(customerId, newBalance)
+		err := walletRepository.Update(walletId, newBalance)
 		assert.Nil(t, err)
 	})
 
@@ -146,14 +146,14 @@ func TestUpdateWallet(t *testing.T) {
 		mockJsonFileHandler := new(storage.WalletJsonFileHandlerMock[entity.Wallet])
 		walletRepository := NewWalletRepository(mockJsonFileHandler)
 
-		customerId := "customer-1"
+		walletId := "wallet-1"
 
 		var newBalance float64 = 5000
 
 		mockJsonFileHandler.Mock.On("ReadFile", constants.WalletJsonPath).
 			Return([]entity.Wallet{}, nil)
 
-		err := walletRepository.Update(customerId, newBalance)
+		err := walletRepository.Update(walletId, newBalance)
 		assert.Equal(t, constants.WalletNotFoundError, err.Error())
 	})
 }
