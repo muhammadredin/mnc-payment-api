@@ -2,7 +2,6 @@ package repository
 
 import (
 	"PaymentAPI/constants"
-	dto "PaymentAPI/dto/response"
 	"PaymentAPI/entity"
 	"PaymentAPI/storage"
 	"PaymentAPI/utils"
@@ -36,9 +35,10 @@ func TestCreateBlacklist(t *testing.T) {
 		mockJsonFileHandler := new(storage.BlacklistJsonFileHandlerMock[entity.Blacklist])
 		blacklistRepository := NewBlacklistRepository(mockJsonFileHandler)
 
-		customer := dto.CustomerResponse{
+		customer := entity.Customer{
 			Id:       "user-1",
 			Username: "John Doe",
+			Password: "password",
 		}
 		token, _ := utils.GenerateAccessToken(customer)
 		tokenExpiryDate, _ := utils.GetExpirationFromClaimsAsString(token)

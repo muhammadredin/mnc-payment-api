@@ -29,3 +29,8 @@ func (m *RefreshTokenServiceMock) RotateRefreshToken(refreshToken string) (entit
 	}
 	return newRefreshToken, args.Error(1)
 }
+
+func (m *RefreshTokenServiceMock) DeleteRefreshToken(refreshToken string) error {
+	args := m.Called(refreshToken)
+	return args.Error(0)
+}

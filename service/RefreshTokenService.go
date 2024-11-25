@@ -12,6 +12,7 @@ import (
 type RefreshTokenService interface {
 	GenerateRefreshToken(customerId string) (entity.RefreshToken, error)
 	RotateRefreshToken(refreshToken string) (entity.RefreshToken, error)
+	DeleteRefreshToken(refreshToken string) error
 }
 
 type refreshTokenService struct {
@@ -63,4 +64,13 @@ func (r *refreshTokenService) RotateRefreshToken(refreshToken string) (entity.Re
 	}
 
 	return newRefreshToken, nil
+}
+
+func (r *refreshTokenService) DeleteRefreshToken(refreshToken string) error {
+	err := r.refreshTokenRepository.DeleteRefreshToken(refreshToken)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

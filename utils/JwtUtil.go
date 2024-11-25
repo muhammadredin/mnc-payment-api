@@ -2,13 +2,14 @@ package utils
 
 import (
 	"PaymentAPI/constants"
-	dto "PaymentAPI/dto/response"
 	"PaymentAPI/entity"
 	"PaymentAPI/enums"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -19,7 +20,7 @@ var LoginExpirationDuration = time.Duration(5) * time.Minute
 var JwtSigningMethod = jwt.SigningMethodHS256
 var JwtSignatureKey = []byte("the secret of kalimdor")
 
-func GenerateAccessToken(customer dto.CustomerResponse) (string, error) {
+func GenerateAccessToken(customer entity.Customer) (string, error) {
 	claims := entity.JwtClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    ApplicationName,
@@ -39,6 +40,24 @@ func GenerateAccessToken(customer dto.CustomerResponse) (string, error) {
 	}
 
 	return signedToken, nil
+}
+
+func ExtractTokenFromHeader(c *gin.Context) (string, error) {
+	// Retrieve the Authorization header
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return "", errors.New(constants.AuthorizationHeaderMissingError)
+	}
+
+	// Bearer token format: "Bearer <token>"
+	// Split the header by space to extract the token part
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		return "", errors.New(constants.AuthorizationHeaderInvalidError)
+	}
+
+	// Extract the JWT token
+	return parts[1], nil
 }
 
 func ParseAndVerifyAccessToken(accessToken string) (jwt.MapClaims, error) {

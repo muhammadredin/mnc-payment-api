@@ -7,10 +7,14 @@ const CustomerNotFound = "Customer not found"
 const CustomerFindSuccess = "Successfully get a customer"
 const UsernameDuplicateError = "Username already exists"
 
-const RefreshTokenNotFoundError = "Refresh token not found"
+const RefreshTokenNotFoundError = "Refresh token not found, could be expired"
 const RefreshTokenExpiredError = "Refresh token is expired"
 
+const LoginSuccess = "Successfully logged in"
 const LoginUnauthorizedError = "Invalid credentials"
+const AuthorizationHeaderMissingError = "Authorization header is missing"
+const AuthorizationHeaderInvalidError = "Invalid Authorization header token"
+const LogoutSuccess = "Successfully logged out"
 
 const JsonWriteSuccess = "Successfully wrote JSON file"
 const JsonFileNotFound = "Json file path not found"
@@ -23,3 +27,5 @@ const JwtTokenInvalidError = "Invalid JWT token"
 
 const WalletNotFoundError = "Wallet not found"
 const WalletDuplicateError = "Wallet already exists"
+
+const InvalidRequestBodyError = "Invalid request body"

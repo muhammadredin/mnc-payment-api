@@ -1,13 +1,16 @@
 package service
 
 import (
+	"PaymentAPI/constants"
+	req "PaymentAPI/dto/request"
 	dto "PaymentAPI/dto/response"
 	"PaymentAPI/utils"
+	"errors"
 )
 
 type AuthService interface {
-	Login(username string) (dto.AuthResponse, error)
-	Logout(accessToken string) error
+	Login(request req.CustomerRequest) (dto.AuthResponse, error)
+	Logout(accessToken string, refreshToken string) error
 	GetNewAccessToken(refreshToken string) (dto.AuthResponse, error)
 }
 
@@ -21,10 +24,14 @@ func NewAuthService(customerService CustomerService, refreshTokenService Refresh
 	return &authService{customerService: customerService, refreshTokenService: refreshTokenService, blacklistService: blacklistService}
 }
 
-func (a *authService) Login(username string) (dto.AuthResponse, error) {
-	customer, err := a.customerService.GetCustomerByUsername(username)
+func (a *authService) Login(request req.CustomerRequest) (dto.AuthResponse, error) {
+	customer, err := a.customerService.GetCustomerByUsernameAuth(request.Username)
 	if err != nil {
 		return dto.AuthResponse{}, err
+	}
+
+	if !utils.BCryptCompare(request.Password, []byte(customer.Password)) {
+		return dto.AuthResponse{}, errors.New(constants.LoginUnauthorizedError)
 	}
 
 	accessToken, err := utils.GenerateAccessToken(customer)
@@ -43,8 +50,13 @@ func (a *authService) Login(username string) (dto.AuthResponse, error) {
 	}, nil
 }
 
-func (a *authService) Logout(accessToken string) error {
+func (a *authService) Logout(accessToken string, refreshToken string) error {
 	err := a.blacklistService.BlacklistToken(accessToken)
+	if err != nil {
+		return err
+	}
+
+	err = a.refreshTokenService.DeleteRefreshToken(refreshToken)
 	if err != nil {
 		return err
 	}
@@ -58,7 +70,7 @@ func (a *authService) GetNewAccessToken(refreshToken string) (dto.AuthResponse, 
 		return dto.AuthResponse{}, err
 	}
 
-	customer, err := a.customerService.GetCustomerById(newRefreshToken.CustomerId)
+	customer, err := a.customerService.GetCustomerByIdAuth(newRefreshToken.CustomerId)
 	if err != nil {
 		return dto.AuthResponse{}, err
 	}

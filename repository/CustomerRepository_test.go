@@ -2,8 +2,6 @@ package repository
 
 import (
 	"PaymentAPI/constants"
-	req "PaymentAPI/dto/request"
-	res "PaymentAPI/dto/response"
 	"PaymentAPI/entity"
 	"PaymentAPI/storage"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +10,8 @@ import (
 )
 
 func TestCreateCustomer(t *testing.T) {
-	customer := req.CreateCustomerRequest{
+	customer := entity.Customer{
+		Id:       "id-1",
 		Username: "budi",
 		Password: "budi123",
 	}
@@ -59,7 +58,7 @@ func TestCreateCustomer(t *testing.T) {
 		response, err := customerRepository.Create(customer)
 
 		assert.NotNil(t, err)
-		assert.Equal(t, res.CustomerResponse{}, response)
+		assert.Equal(t, entity.Customer{}, response)
 		mockFileHandler.Mock.AssertExpectations(t)
 	})
 }
@@ -73,23 +72,18 @@ func TestGetCustomerByUsername(t *testing.T) {
 		Password: "customer-1",
 	}
 
-	customerResponse := res.CustomerResponse{
-		Id:       "customer-1",
-		Username: "customer-1",
-	}
-
 	mockFileHandler.Mock.On("ReadFile", mock.Anything).Return([]entity.Customer{customer}, nil) // Mock ReadFile to return customer when called
 	mockFileHandler.Mock.On("ReadFile", "").Return([]entity.Customer{}, nil)
 
 	t.Run("ShouldReturnCustomer", func(t *testing.T) {
 		response, err := customerRepository.GetByUsername(customer.Username)
-		assert.Equal(t, response, customerResponse, "Response not equal to customer")
+		assert.Equal(t, response, customer, "Response not equal to customer")
 		assert.Nil(t, err, "Error should be nil")
 	})
 
 	t.Run("ShouldReturnError", func(t *testing.T) {
 		response, err := customerRepository.GetByUsername("")
-		assert.Equal(t, response, res.CustomerResponse{}, "Response should be empty struct")
+		assert.Equal(t, response, entity.Customer{}, "Response should be empty struct")
 		assert.Equal(t, constants.CustomerNotFound, err.Error(), "Error message not correct")
 	})
 }
@@ -103,23 +97,18 @@ func TestGetCustomerById(t *testing.T) {
 		Password: "customer-1",
 	}
 
-	customerResponse := res.CustomerResponse{
-		Id:       "customer-1",
-		Username: "customer-1",
-	}
-
 	mockFileHandler.Mock.On("ReadFile", mock.Anything).Return([]entity.Customer{customer}, nil) // Mock ReadFile to return customer when called
 	mockFileHandler.Mock.On("ReadFile", "").Return([]entity.Customer{}, nil)
 
 	t.Run("ShouldReturnCustomer", func(t *testing.T) {
 		response, err := customerRepository.GetById(customer.Id)
-		assert.Equal(t, response, customerResponse, "Response not equal to customer")
+		assert.Equal(t, response, customer, "Response not equal to customer")
 		assert.Nil(t, err, "Error should be nil")
 	})
 
 	t.Run("ShouldReturnError", func(t *testing.T) {
 		response, err := customerRepository.GetById("")
-		assert.Equal(t, response, res.CustomerResponse{}, "Response should be empty struct")
+		assert.Equal(t, response, entity.Customer{}, "Response should be empty struct")
 		assert.Equal(t, constants.CustomerNotFound, err.Error(), "Error message not correct")
 	})
 }

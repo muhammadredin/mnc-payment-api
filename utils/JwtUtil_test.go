@@ -1,15 +1,16 @@
 package utils
 
 import (
-	dto "PaymentAPI/dto/response"
+	"PaymentAPI/entity"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestGenerateAccessToken(t *testing.T) {
-	customer := dto.CustomerResponse{
+	customer := entity.Customer{
 		Id:       "id-1",
 		Username: "johndoe",
+		Password: "password",
 	}
 
 	token, err := GenerateAccessToken(customer)
