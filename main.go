@@ -10,9 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//TIP To run your code, right-click the code and select <b>Run</b>. Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.
-
 func main() {
 	customerRepository := repository.NewCustomerRepository(storage.NewJsonFileHandler[entity.Customer]())
 	walletRepository := repository.NewWalletRepository(storage.NewJsonFileHandler[entity.Wallet]())
@@ -29,6 +26,7 @@ func main() {
 
 	authHandler := handler.NewAuthHandler(authService, customerService)
 	transactionHandler := handler.NewTransactionHandler(transactionService, walletService)
+	customerHandler := handler.NewCustomerHandler(customerService)
 
 	r := gin.Default()
 
@@ -42,13 +40,18 @@ func main() {
 
 	r.Use(middleware.AuthMiddleware(blacklistService))
 
-	transaction := r.Group("/api/transaction")
+	transaction := r.Group("/api/transactions")
 	{
 		transaction.POST("", transactionHandler.HandleCreateTransaction)
 	}
 
-	r.Run(":8081")
-}
+	customer := r.Group("/api/customers")
+	{
+		customer.GET("/:id", customerHandler.HandleGetCustomerById)
+	}
 
-//TIP See GoLand help at <a href="https://www.jetbrains.com/help/go/">jetbrains.com/help/go/</a>.
-// Also, you can try interactive lessons for GoLand by selecting 'Help | Learn IDE Features' from the main menu.
+	err := r.Run(":8081")
+	if err != nil {
+		return
+	}
+}

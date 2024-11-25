@@ -7,6 +7,7 @@ import (
 	"PaymentAPI/service"
 	"PaymentAPI/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus" // Importing logrus for structured logging
 	"net/http"
 	"time"
 )
@@ -28,9 +29,14 @@ func NewAuthHandler(authService service.AuthService, customerService service.Cus
 }
 
 func (a *authHandler) HandleRegister(c *gin.Context) {
-	var request req.CustomerRequest
+	logger := logrus.WithFields(logrus.Fields{
+		"clientIP": c.ClientIP(),
+		"endpoint": "/register",
+	})
 
+	var request req.CustomerRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
+		logger.Warn("Invalid request body", "error", err)
 		c.JSON(http.StatusBadRequest, res.ErrorResponse{
 			StatusCode:   http.StatusBadRequest,
 			ErrorMessage: constants.InvalidRequestBodyError,
@@ -39,6 +45,7 @@ func (a *authHandler) HandleRegister(c *gin.Context) {
 	}
 
 	if _, err := a.customerService.CreateNewCustomer(request); err != nil {
+		logger.Warn("Failed to create customer", "error", err)
 		switch err.Error() {
 		case constants.UsernameDuplicateError:
 			c.JSON(http.StatusBadRequest, res.ErrorResponse{StatusCode: http.StatusBadRequest, ErrorMessage: err.Error()})
@@ -48,6 +55,7 @@ func (a *authHandler) HandleRegister(c *gin.Context) {
 		return
 	}
 
+	logger.Info("Customer successfully registered")
 	c.JSON(http.StatusCreated, res.CommonResponse{
 		StatusCode: http.StatusCreated,
 		Message:    constants.CustomerCreateSuccess,
@@ -56,9 +64,14 @@ func (a *authHandler) HandleRegister(c *gin.Context) {
 }
 
 func (a *authHandler) HandleLogin(c *gin.Context) {
-	var request req.CustomerRequest
+	logger := logrus.WithFields(logrus.Fields{
+		"clientIP": c.ClientIP(),
+		"endpoint": "/login",
+	})
 
+	var request req.CustomerRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
+		logger.Warn("Invalid request body", "error", err)
 		c.JSON(http.StatusBadRequest, res.ErrorResponse{
 			StatusCode:   http.StatusBadRequest,
 			ErrorMessage: constants.InvalidRequestBodyError,
@@ -67,8 +80,8 @@ func (a *authHandler) HandleLogin(c *gin.Context) {
 	}
 
 	login, err := a.authService.Login(request)
-
 	if err != nil {
+		logger.Warn("Login failed", "error", err)
 		switch err.Error() {
 		case constants.LoginUnauthorizedError:
 			c.JSON(http.StatusUnauthorized, res.ErrorResponse{StatusCode: http.StatusUnauthorized, ErrorMessage: err.Error()})
@@ -79,7 +92,7 @@ func (a *authHandler) HandleLogin(c *gin.Context) {
 	}
 
 	SetCookie(c, "refresh_token", login.RefreshToken, 24)
-
+	logger.Info("Login successful")
 	c.JSON(http.StatusOK, res.CommonResponse{
 		StatusCode: http.StatusOK,
 		Message:    constants.LoginSuccess,
@@ -89,8 +102,14 @@ func (a *authHandler) HandleLogin(c *gin.Context) {
 }
 
 func (a *authHandler) HandleLogout(c *gin.Context) {
+	logger := logrus.WithFields(logrus.Fields{
+		"clientIP": c.ClientIP(),
+		"endpoint": "/logout",
+	})
+
 	token, err := utils.ExtractTokenFromHeader(c)
 	if err != nil {
+		logger.Warn("Failed to extract token", "error", err)
 		c.JSON(http.StatusUnauthorized, res.ErrorResponse{
 			StatusCode:   http.StatusUnauthorized,
 			ErrorMessage: err.Error(),
@@ -100,6 +119,7 @@ func (a *authHandler) HandleLogout(c *gin.Context) {
 
 	cookie, err := c.Cookie("refresh_token")
 	if err != nil {
+		logger.Warn("Failed to retrieve refresh token from cookie", "error", err)
 		c.JSON(http.StatusUnauthorized, res.ErrorResponse{
 			StatusCode:   http.StatusUnauthorized,
 			ErrorMessage: err.Error(),
@@ -109,6 +129,7 @@ func (a *authHandler) HandleLogout(c *gin.Context) {
 
 	err = a.authService.Logout(token, cookie)
 	if err != nil {
+		logger.Warn("Logout failed", "error", err)
 		c.JSON(http.StatusUnauthorized, res.ErrorResponse{
 			StatusCode:   http.StatusUnauthorized,
 			ErrorMessage: err.Error(),
@@ -116,6 +137,7 @@ func (a *authHandler) HandleLogout(c *gin.Context) {
 		return
 	}
 
+	logger.Info("Logout successful")
 	c.JSON(http.StatusOK, res.CommonResponse{
 		StatusCode: http.StatusOK,
 		Message:    constants.LogoutSuccess,
@@ -125,8 +147,14 @@ func (a *authHandler) HandleLogout(c *gin.Context) {
 }
 
 func (a *authHandler) HandleRefreshToken(c *gin.Context) {
+	logger := logrus.WithFields(logrus.Fields{
+		"clientIP": c.ClientIP(),
+		"endpoint": "/refresh-token",
+	})
+
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
+		logger.Warn("Failed to retrieve refresh token from cookie", "error", err)
 		c.JSON(http.StatusUnauthorized, res.ErrorResponse{
 			StatusCode:   http.StatusUnauthorized,
 			ErrorMessage: err.Error(),
@@ -136,6 +164,7 @@ func (a *authHandler) HandleRefreshToken(c *gin.Context) {
 
 	login, err := a.authService.GetNewAccessToken(refreshToken)
 	if err != nil {
+		logger.Warn("Failed to refresh access token", "error", err)
 		c.JSON(http.StatusUnauthorized, res.ErrorResponse{
 			StatusCode:   http.StatusUnauthorized,
 			ErrorMessage: err.Error(),
@@ -144,7 +173,7 @@ func (a *authHandler) HandleRefreshToken(c *gin.Context) {
 	}
 
 	SetCookie(c, "refresh_token", login.RefreshToken, 24)
-
+	logger.Info("Access token refreshed successfully")
 	c.JSON(http.StatusOK, res.CommonResponse{
 		StatusCode: http.StatusOK,
 		Message:    constants.LoginSuccess,
