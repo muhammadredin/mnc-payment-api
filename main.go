@@ -3,6 +3,7 @@ package main
 import (
 	"PaymentAPI/entity"
 	"PaymentAPI/handler"
+	"PaymentAPI/middleware"
 	"PaymentAPI/repository"
 	"PaymentAPI/service"
 	"PaymentAPI/storage"
@@ -35,6 +36,8 @@ func main() {
 		public.POST("/auth/logout", authHandler.HandleLogout)
 		public.POST("/auth/refresh-token", authHandler.HandleRefreshToken)
 	}
+
+	r.Use(middleware.AuthMiddleware())
 
 	r.Run(":8081")
 }
