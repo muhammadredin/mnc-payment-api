@@ -24,3 +24,15 @@
 {"id":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully fetched customer","operation":"GetById","time":"2024-11-25T18:32:48+07:00","username":"johndoe"}
 {"level":"info","msg":"Fetching all blacklist entries","operation":"GetAll","time":"2024-11-25T18:32:54+07:00"}
 {"count":4,"level":"info","msg":"Successfully fetched blacklist entries","operation":"GetAll","time":"2024-11-25T18:32:54+07:00"}
+{"level":"info","msg":"Attempting to log in","time":"2024-11-25T22:06:25+07:00","username":"johndoe"}
+{"level":"info","msg":"Fetching customer by username","operation":"GetByUsername","time":"2024-11-25T22:06:25+07:00","username":"johndoe"}
+{"id":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully fetched customer","operation":"GetByUsername","time":"2024-11-25T22:06:25+07:00","username":"johndoe"}
+{"customerId":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully logged in","time":"2024-11-25T22:06:25+07:00","username":"johndoe"}
+{"level":"info","msg":"Attempting to log in","time":"2024-11-25T22:06:27+07:00","username":"johndoe"}
+{"level":"info","msg":"Fetching customer by username","operation":"GetByUsername","time":"2024-11-25T22:06:27+07:00","username":"johndoe"}
+{"id":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully fetched customer","operation":"GetByUsername","time":"2024-11-25T22:06:27+07:00","username":"johndoe"}
+{"customerId":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully logged in","time":"2024-11-25T22:06:27+07:00","username":"johndoe"}
+{"level":"info","msg":"Attempting to rotate refresh token and generate a new access token","refreshToken":"4124c014-3c94-4097-8bdc-088c0c322880","time":"2024-11-25T22:06:31+07:00"}
+{"id":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Fetching customer by ID","operation":"GetById","time":"2024-11-25T22:06:31+07:00"}
+{"id":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully fetched customer","operation":"GetById","time":"2024-11-25T22:06:31+07:00","username":"johndoe"}
+{"customerId":"ef749bd6-4f11-404b-b00f-caa5eb5e81d8","level":"info","msg":"Successfully generated new access token","time":"2024-11-25T22:06:31+07:00"}

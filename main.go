@@ -1,6 +1,7 @@
 package main
 
 import (
+	"PaymentAPI/config"
 	"PaymentAPI/entity"
 	"PaymentAPI/handler"
 	"PaymentAPI/middleware"
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	config.InitConfig()
+
 	customerRepository := repository.NewCustomerRepository(storage.NewJsonFileHandler[entity.Customer]())
 	walletRepository := repository.NewWalletRepository(storage.NewJsonFileHandler[entity.Wallet]())
 	refreshTokenRepository := repository.NewRefreshTokenRepository(storage.NewJsonFileHandler[entity.RefreshToken]())
@@ -50,7 +53,7 @@ func main() {
 		customer.GET("/:id", customerHandler.HandleGetCustomerById)
 	}
 
-	err := r.Run(":8081")
+	err := r.Run(":" + config.ServerPort)
 	if err != nil {
 		return
 	}

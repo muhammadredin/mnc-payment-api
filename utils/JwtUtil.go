@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"PaymentAPI/config"
 	"PaymentAPI/constants"
 	"PaymentAPI/entity"
 	"errors"
@@ -14,24 +15,19 @@ import (
 
 type M map[string]interface{}
 
-var ApplicationName = "Payment API App"
-var LoginExpirationDuration = time.Duration(5) * time.Minute
-var JwtSigningMethod = jwt.SigningMethodHS256
-var JwtSignatureKey = []byte("the secret of kalimdor")
-
 func GenerateAccessToken(customer entity.Customer) (string, error) {
 	claims := entity.JwtClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    ApplicationName,
+			Issuer:    config.ApplicationName,
 			Subject:   customer.Id,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(LoginExpirationDuration)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.LoginExpirationDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
-	token := jwt.NewWithClaims(JwtSigningMethod, claims)
+	token := jwt.NewWithClaims(config.JwtSigningMethod, claims)
 
-	signedToken, err := token.SignedString(JwtSignatureKey)
+	signedToken, err := token.SignedString(config.JwtSignatureKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %w", err)
 	}
@@ -63,11 +59,11 @@ func ParseAndVerifyAccessToken(accessToken string) (jwt.MapClaims, error) {
 		if !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		if method != JwtSigningMethod {
-			return nil, fmt.Errorf("invalid signing method: expected %v, got %v", JwtSigningMethod.Alg(), method.Alg())
+		if method != config.JwtSigningMethod {
+			return nil, fmt.Errorf("invalid signing method: expected %v, got %v", config.JwtSigningMethod.Alg(), method.Alg())
 		}
 
-		return JwtSignatureKey, nil
+		return config.JwtSignatureKey, nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf(constants.JwtTokenInvalidError)
